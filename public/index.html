@@ -1,0 +1,43 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>API OCR</title>
+</head>
+<body>
+  <h1>Procesamiento de OCR</h1>
+  <form id="ocrForm" action="/api/ocr" method="post" enctype="multipart/form-data">
+    <input type="file" name="imageFile" accept=".png, .jpg, .jpeg" required>
+    <button type="submit">Procesar imagen</button>
+  </form>
+
+  <div id="result"></div>
+
+  <script>
+    document.getElementById('ocrForm').addEventListener('submit', function(event) {
+      event.preventDefault();
+      const form = event.target;
+      const formData = new FormData(form);
+
+      fetch(form.action, {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        const resultDiv = document.getElementById('result');
+        resultDiv.innerHTML = '';
+        for (const key in data) {
+          const value = data[key];
+          const resultItem = document.createElement('p');
+          resultItem.textContent = `${key}: ${value}`;
+          resultDiv.appendChild(resultItem);
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+    });
+  </script>
+</body>
+</html>

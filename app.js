@@ -1,16 +1,21 @@
-// app.js
 const express = require('express');
 const Tesseract = require('tesseract.js');
+const multer = require('multer');
 
 const app = express();
+
+// Configurar multer para manejar la carga de archivos
+const upload = multer({ dest: 'uploads/' });
 
 // ... (otros middleware y rutas)
 app.use(express.json());
 
+// Servir archivos estáticos desde la carpeta 'public'
+app.use(express.static('public'));
 
 // Ruta para procesar la imagen y realizar el OCR
-app.post('/api/ocr', (req, res) => {
-  const imagePath = req.body.imagePath; // Asegúrate de enviar la ruta de la imagen en el cuerpo de la solicitud (en el caso de una solicitud POST)
+app.post('/api/ocr', upload.single('imageFile'), (req, res) => {
+  const imagePath = req.file.path;
   const keywords = ['Subtotal', 'IVA', 'Fecha', 'Total', 'Fecha vencimiento', 'Carretera'];
   const extractedData = {};
 
