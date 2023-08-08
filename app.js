@@ -1,19 +1,17 @@
 const express = require('express');
 const Tesseract = require('tesseract.js');
 const multer = require('multer');
+const fs = require('fs');
 
 const app = express();
 
 // Configurar multer para manejar la carga de archivos
 const upload = multer({ dest: 'uploads/' });
 
-// ... (otros middleware y rutas)
 app.use(express.json());
 
-// Servir archivos estáticos desde la carpeta 'public'
 app.use(express.static('public'));
 
-// Ruta para procesar la imagen y realizar el OCR
 app.post('/api/ocr', upload.single('imageFile'), (req, res) => {
   const imagePath = req.file.path;
   const keywords = ['Subtotal', 'IVA', 'Fecha', 'Total', 'Fecha vencimiento', 'Carretera'];
@@ -36,14 +34,19 @@ app.post('/api/ocr', upload.single('imageFile'), (req, res) => {
       }
     }
   
+    // Eliminar el archivo cargado después del procesamiento
+    fs.unlink(imagePath, (error) => {
+      if (error) {
+        console.error('Error al eliminar el archivo:', error);
+      }
+    });
+  
     res.json(extractedData);
   }).catch(error => {
     console.error('Error:', error);
     res.status(500).json({ error: 'Error en el procesamiento de la imagen' });
   });
 });
-
-// ... (más rutas y configuraciones)
 
 const port = 3000;
 app.listen(port, () => {
